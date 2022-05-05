@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ .Values.app.name }}
+  name: {{ .Values.app.name }}-{{ .Values.environment }}
+  namespace: {{ .Values.app.namespace }}
+spec:
+  replicas: {{ .Values.pod.replicas }}
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: {{ .Values.app.name }} 
+  template:
+    metadata:
+      {{- with .Values.pod.annotations }}
+      annotations:
+        rollme: {{ randAlphaNum 5 | quote }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app: {{ .Values.app.name }}
+    spec:
+      imagePullSecrets:
+        - name: {{ .Values.app.name }}-{{ .Values.environment }}
+      containers:
+        - name: {{ .Values.app.name }}
+          image: "{{ .Values.image }}"
+          ports:
+          - containerPort: {{ .Values.app.listenPort }}
+          volumeMounts:
+            - name: time
+              mountPath: /etc/localtime
+          {{- if .Values.app.configPath }}
+          {{- $appName := .Values.app.name -}}
+          {{- $appConfigPath := .Values.app.configPath -}}
+          {{- $appConfigs := printf "configs/%s/*" .Values.environment }}
+          {{- range $path, $bytes := .Files.Glob $appConfigs }}
+            - name: {{ $appName }}-config
+              mountPath: {{ $appConfigPath }}{{ base $path }}
+              subPath: {{ base $path }}
+          {{- end }}
+          {{- end }}
+          {{- if .Values.volumeMounts }}
+            {{- toYaml .Values.volumeMounts | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: time
+          hostPath:
+            path: /etc/localtime
+      {{- if .Values.app.configPath }}
+        - name: {{ .Values.app.name }}-config
+          configMap:
+            name: {{ .Values.app.name }}-{{ .Values.environment }}
+      {{- end }}
+      {{- if .Values.volumes }}
+        {{- toYaml .Values.volumes | nindent 8 }}
+      {{- end }}

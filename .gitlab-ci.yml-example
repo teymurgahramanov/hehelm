@@ -1,0 +1,33 @@
+variables:
+  APP_NAME: umbrella
+  APP_NAMESPACE: evil
+  APP_CONFIG_PATH: /app/conf/ # Last slash '/' matters. If configmaps not needed leave empty quotes "".
+  APP_LISTEN_PORT: 80
+  APP_LISTEN_PATH: /
+  POD_REPLICAS: 1
+  INGRESS_ENABLED: "true"
+  INGRESS_HOSTNAME_TEST: umbrella.evil.com
+  INGRESS_HOSTNAME_PROD: umbrella.evil.com
+  CUSTOM_PIPELINE: "false"
+
+start:
+  trigger:
+    include:
+      - project: teymur_gahramanov/hehelm
+        ref: master
+        file: /pipelines/.gitlab-ci.yml
+    strategy: depend
+  rules:
+    - if: $CUSTOM_PIPELINE == "false"
+      when: always
+
+start-custom-pipeline:
+  trigger:
+    include:
+      - project: teymur_gahramanov/hehelm
+        ref: master
+        file: /pipelines/.$CI_PROJECT_NAME-gitlab-ci.yml
+    strategy: depend
+  rules:
+    - if: $CUSTOM_PIPELINE == "true"
+      when: always

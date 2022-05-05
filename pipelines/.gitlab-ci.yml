@@ -1,0 +1,66 @@
+variables:
+  IMAGE: $CI_REGISTRY_IMAGE:$CI_PIPELINE_IID
+  HEHELM: https://hehelmRepositoryUrl
+
+.install-helm: &install-helm
+  - git clone $HEHELM helm-chart
+  - mv -f $CI_PROJECT_DIR/helm-app-configs/* $CI_PROJECT_DIR/helm-chart/configs/ || true
+  - mv -f $CI_PROJECT_DIR/helm-templates-override/*.yaml $CI_PROJECT_DIR/helm-chart/templates/ || true
+  - mv -f $CI_PROJECT_DIR/helm-values-override.yaml $CI_PROJECT_DIR/helm-chart/values-override.yaml || true
+  - helm upgrade --install $CI_PROJECT_NAME
+     -f $CI_PROJECT_DIR/helm-chart/values.yaml -f $CI_PROJECT_DIR/helm-chart/values-override.yaml
+     --set app.name=$APP_NAME
+     --set app.namespace=$APP_NAMESPACE
+     --set app.configPath=$APP_CONFIG_PATH
+     --set app.listenPort=$APP_LISTEN_PORT
+     --set app.listenPath=$APP_LISTEN_PATH
+     --set pod.replicas=$POD_REPLICAS
+     --set ingress.enabled=$INGRESS_ENABLED
+     --set ingress.hostname=$INGRESS_HOSTNAME
+     --set image=$IMAGE
+     --set environment=$ENVIRONMENT
+     $CI_PROJECT_DIR/helm-chart
+
+stages:
+  - build
+  - deploy
+
+build:
+  stage: build
+  script:
+    - docker build -t $IMAGE .   
+  tags:
+    - test     
+
+push:
+  stage: build
+  script:
+    - docker login -u $DOCKER_USER -p $DOCKER_PASSWORD $CI_REGISTRY
+    - docker push $IMAGE
+    - docker image rm $IMAGE
+  tags:
+    - test
+
+to-test:
+  stage: deploy
+  variables:
+    INGRESS_HOSTNAME: $INGRESS_HOSTNAME_TEST
+    ENVIRONMENT: test
+  script:
+    - *install-helm
+  tags:
+    - test
+  only:
+    - test
+      
+to-prod:
+  stage: deploy
+  variables:
+    INGRESS_HOSTNAME: $INGRESS_HOSTNAME_PROD
+    ENVIRONMENT: prod
+  script:
+    - *install-helm
+  tags:
+    - prod
+  only:
+    - master

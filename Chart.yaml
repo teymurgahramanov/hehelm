@@ -1,0 +1,10 @@
+apiVersion: v2
+name: hehelm
+description: Helm chart template
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+maintainers:
+  - name: Teymur Gahramanov
+    email: gahramanovteymur@gmail.com
+    url: https://www.linkedin.com/in/teymurgahramanov/

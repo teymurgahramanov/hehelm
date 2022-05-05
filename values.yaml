@@ -1,0 +1,42 @@
+app:
+  name: ""
+  namespace: ""
+  configPath: ""
+  listenPort: 0
+  listenPath: ""
+  listenProtocol: TCP
+  probePath: ""
+
+image: ""
+
+pod:
+  replicas: 0
+  annotations: {}
+
+service:
+  annotations: {}
+
+ingress:
+  enabled: false
+  hostname: ""
+  pathType: Prefix
+  annotations:
+    nginx.ingress.kubernetes.io/frontend-entry-points: http,https
+    nginx.ingress.kubernetes.io/redirect-entry-point: https
+    nginx.ingress.kubernetes.io/rewrite-target: /
+
+volumes: {}
+  #- name: time
+  #  hostPath:
+  #    path: /etc/localtime
+volumeMounts: {}
+  #- name: time
+  #  mountPath: /etc/localtime
+resources: {}
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+environment: ""
