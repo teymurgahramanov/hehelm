@@ -45,4 +45,4 @@ Example: pipelines/.project-1-gitlab-ci.yml
 There are too many Kubernetes projects in GitLab in X company. Each project has its own kubernetes manifest and gitlab files. Simple but not flexible, no ability to apply uniform pipeline policy or perform improvements as there need to manually change files in all projects, human factor and time waste during copy/paste when new project come.
 
 - Solution: \
-This project eliminates all problems described above as there centralized and standartized approach and at the same time we can perform individual approach for each project by describing aproppriate files in the project.
+This project eliminates all problems described above as there centralized and standartized approach and at the same time we can perform individual approach for each project.
