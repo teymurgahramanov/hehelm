@@ -19,26 +19,32 @@ Example: pipelines/.project-1-gitlab-ci.yml
 
 ### Overrides
 
+#### All overrides should be placed under __hehelm/__ directory in root of your project.
+
 - #### Override application configs
-  1. In project create __helm-app-configs__ directory and sub directories named as your environments (ex. test).\
-  So for test environment configs it should look like: ```helm-app-configs/test```
+  1. In project create __hehelm/configs/__ directory and sub directories named as your environments (ex. test).\
+  So for test environment configs it should look like: ```hehelm/configs/test/```
   2. Add application config files there
+  
+  Config files will be mounted inside $APP_CONFIG_PATH which you define in .gitlab-ci.yml in your project.
   <br/><br/>
 - #### Override helm template files
-  1. In project create __helm-templates-override__ directory.
+  1. In project create __hehelm/templates/__ directory.
   2. Add your templates there. (Proper way of doing that is using templates in this repository as base files)
   <br/><br/>
+
 - #### Override default values
-  As only most changing variables exposed in .gitlab-ci.yml file you may want to edit others or even add new variables.
-  1. In project create __helm-values-override.yaml__ file.
+  As only most changing variables exposed in .gitlab-ci.yml file you may want to edit others or add new variables. It will override variables in values.yaml in this project.
+  1. In project create __hehelm/values.yaml__ file.
   2. Make changes. (Proper way of doing that is using values.yaml in this repository as base file)
 
 
 ### How it works
 1. You start pipeline in your project.
 2. It triggers child-pipeline using file in ./pipelines/ directory in this project.
-3. During child-pipeline this project get cloned to your project repository named as helm-chart.
-4. Helm chart get installed using variables you defined in .gitlab-ci.yml file in your project.
+3. During child-pipeline this project get cloned to your project repository named as __helm-chart__.
+4. If there are files in __hehelm/__ directory they will override appropriate files in __helm-chart__.
+5. Helm chart get installed using variables you defined in .gitlab-ci.yml file in your project.
 
 ### Real use case
 - Problem: \
